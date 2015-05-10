@@ -1,0 +1,18 @@
+rabbit:
+    image: rabbitmq
+    ports:
+       - 5672
+db:
+    image: mongo
+    ports:
+        - 27017
+builder:
+    build: .
+    command: python main.py
+    volumes:
+        - .:/src
+    links:
+        - rabbit
+        - db
+    environment:
+        TESTING:
