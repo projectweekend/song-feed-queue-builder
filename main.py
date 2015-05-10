@@ -19,7 +19,6 @@ def main():
     q = playlists_queue()
     for playlist in playlists_to_process():
         body = json.dumps(dict(playlist.items()))
-        print(body)
         q.write(q.new_message(body=body))
 
 
