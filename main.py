@@ -1,7 +1,7 @@
 import os
 from datetime import date
+from pymongo import MongoClient
 from pika_pack import Sender
-from lib import database
 
 
 DOCKER_MONGO_IP_PORT = '{0}:{1}'.format(
@@ -14,9 +14,14 @@ DOCKER_RABBIT_IP_PORT = '{0}:{1}'.format(
 RABBIT_URL = os.getenv('RABBIT_URL', 'amqp://{0}/'.format(DOCKER_RABBIT_IP_PORT))
 
 
+def mongo_connect():
+    client = MongoClient(MONGO_URL)
+    return client.get_default_database()
+
+
 def main():
     sender = Sender(RABBIT_URL, 'song-feed')
-    db = database.connect(MONGO_URL)
+    db = mongo_connect(MONGO_URL)
     query = {
         'last_processed': {
             '$ne': date.isoformat(date.today())
