@@ -1,0 +1,2 @@
+pymongo==3.0.1
+Pika-Pack==2.0.0
