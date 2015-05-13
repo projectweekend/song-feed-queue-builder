@@ -7,7 +7,8 @@ from boto.dynamodb2.table import Table
 def playlists_to_process():
     accounts = Table('accounts')
     target_date = date.isoformat(date.today())
-    return accounts.scan(last_processed__ne=target_date)
+    attributes = ('spotify_username', 'spotify_playlist_id', )
+    return accounts.scan(last_processed__ne=target_date, attributes=attributes)
 
 
 def playlists_queue():
