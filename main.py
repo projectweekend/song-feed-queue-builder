@@ -4,9 +4,8 @@ from boto import sqs
 from boto.dynamodb2.table import Table
 
 
-def playlists_to_process():
+def playlists_to_process(target_date):
     accounts = Table('accounts')
-    target_date = date.isoformat(date.today())
     attributes = ('spotify_username', 'spotify_playlist_id', )
     return accounts.scan(last_processed__ne=target_date, attributes=attributes)
 
@@ -17,9 +16,14 @@ def playlists_queue():
 
 
 def main():
+    date_to_process = date.isoformat(date.today())
     q = playlists_queue()
-    for playlist in playlists_to_process():
-        body = json.dumps(dict(playlist.items()))
+    for playlist in playlists_to_process(date_to_process):
+        data = dict(playlist.items())
+        body = json.dumps({
+            'spotify_username': data['spotify_username'],
+            'date_to_process': date_to_process
+        })
         q.write(q.new_message(body=body))
 
 
