@@ -1,13 +1,14 @@
 import json
+import time
 from datetime import date
 from boto import sqs
 from boto.dynamodb2.table import Table
 
 
-def accounts_to_process(target_date):
+def accounts_to_process(target_timestamp):
     accounts = Table('accounts')
     attributes = ('spotify_username', )
-    return accounts.scan(attributes=attributes)
+    return accounts.scan(last_processed__lt=target_timestamp, attributes=attributes)
 
 
 def playlists_queue():
@@ -16,10 +17,12 @@ def playlists_queue():
 
 
 def main():
-    date_to_process = date.isoformat(date.today())
+    today = date.today()
+    date_to_process = int(time.mktime(today.timetuple()))
     q = playlists_queue()
     for playlist in accounts_to_process(date_to_process):
         data = dict(playlist.items())
+        data['date_to_process'] = date_to_process
         q.write(q.new_message(body=json.dumps(data)))
 
 
